@@ -265,35 +265,40 @@
             });
         });
 
-        function calculatePayment() {
-            const principal = parseFloat(document.getElementById('principal').value);
-            const addonRate = parseFloat(document.getElementById('addonRate').value);
-            const installments = parseInt(document.getElementById('installments').value);
-            
-            if (!principal || !installments) {
-                alert('購入金額と支払い回数を入力してください。');
-                return;
-            }
-            
-            // 分割払手数料の計算
-            const splitFee = Math.floor(principal * (addonRate / 100) * installments);
-            const totalPayment = principal + splitFee;
-            
-            const baseMonthlyPayment = Math.floor(totalPayment / installments);
-            const remainder = totalPayment % installments;
-            const firstPayment = baseMonthlyPayment + remainder;
-            const remainingPayments = baseMonthlyPayment;
-            
-            displayResults({
-                principal: principal,
-                addonRate: addonRate,
-                totalPayment: totalPayment,
-                installments: installments,
-                splitFee: splitFee,
-                firstPayment: firstPayment,
-                remainingPayments: remainingPayments
-            });
-        }
+// 月々の支払い金額を計算する関数を修正
+function calculateMonthlyPayment(principal, annualRate, months) {
+    const monthlyRate = annualRate / 12 / 100;
+    const numerator = principal * monthlyRate * Math.pow(1 + monthlyRate, months);
+    const denominator = Math.pow(1 + monthlyRate, months) - 1;
+    const monthlyPayment = numerator / denominator;
+    
+    // 100円未満を切り捨て
+    return Math.floor(monthlyPayment / 100) * 100;
+}
+
+// 計算処理の関数
+function calculate() {
+    const principal = parseFloat(document.getElementById('principal').value);
+    const annualRate = parseFloat(document.getElementById('annualRate').value);
+    const months = parseInt(document.getElementById('months').value);
+
+    if (isNaN(principal) || isNaN(annualRate) || isNaN(months)) {
+        alert('正しい数値を入力してください。');
+        return;
+    }
+
+    const monthlyPayment = calculateMonthlyPayment(principal, annualRate, months);
+    const totalPayment = monthlyPayment * months;
+    const totalInterest = totalPayment - principal;
+
+    // 結果の表示を更新
+    document.getElementById('monthlyPayment').textContent = monthlyPayment.toLocaleString();
+    document.getElementById('totalPayment').textContent = totalPayment.toLocaleString();
+    document.getElementById('totalInterest').textContent = totalInterest.toLocaleString();
+    
+    // 計算結果セクションを表示
+    document.getElementById('results').classList.remove('hidden');
+}
 
         function displayResults(results) {
             const resultHTML = `
