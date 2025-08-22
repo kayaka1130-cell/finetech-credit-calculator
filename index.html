@@ -43,9 +43,6 @@
             align-items: center;
             padding: 2rem;
             margin-bottom: 2rem;
-            background-color: var(--card-background);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
         }
 
         .logo {
@@ -53,18 +50,321 @@
             height: auto;
         }
 
-        /* その他のスタイルは前回と同じ... */
+        .calculator {
+            background: var(--card-background);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .input-section {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        input, select {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--finetech-blue-dark);
+            box-shadow: 0 0 0 3px rgba(27, 78, 156, 0.1);
+        }
+
+        .rate-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .rate-option {
+            padding: 0.75rem;
+            border: 2px solid var(--finetech-blue-dark);
+            border-radius: var(--radius);
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--finetech-blue-dark);
+            transition: all 0.2s;
+        }
+
+        .rate-option:hover {
+            background-color: rgba(27, 78, 156, 0.05);
+        }
+
+        .rate-option.selected {
+            background-color: var(--finetech-blue-dark);
+            color: white;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--finetech-blue-dark);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--finetech-blue-light);
+        }
+
+        .result-details {
+            background: var(--background-color);
+            padding: 2rem;
+            border-radius: var(--radius);
+            margin-top: 2rem;
+        }
+
+        .result-details h2 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .result-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--card-background);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .schedule-container {
+            margin-top: 1.5rem;
+            background: var(--card-background);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .schedule-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .schedule-row:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .logo-wrapper {
+                padding: 1.5rem;
+            }
+            
+            .logo {
+                width: 220px;
+            }
+
+            .calculator {
+                padding: 1.5rem;
+            }
+
+            .rate-selector {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="logo-wrapper">
-                <img src="finetech-logo.png" alt="Finetech" class="logo">
+                <img src="https://raw.githubusercontent.com/kayaka1130-cell/finetech-credit-calculator/main/finetech-logo.png" 
+                     alt="Finetech" 
+                     class="logo">
             </div>
         </header>
 
-        <!-- 以下は前回と同じ内容... -->
+        <main class="calculator">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="principal">購入金額（円）</label>
+                    <input type="number" id="principal" min="0" value="220000" placeholder="例：220000">
+                </div>
+                
+                <div class="input-group">
+                    <label>アドオン率</label>
+                    <div class="rate-selector">
+                        <div class="rate-option" data-rate="0.45">0.45%</div>
+                        <div class="rate-option" data-rate="0.65">0.65%</div>
+                        <div class="rate-option selected" data-rate="0.8">0.80%</div>
+                    </div>
+                    <input type="hidden" id="addonRate" value="0.8">
+                </div>
+                
+                <div class="input-group">
+                    <label for="installments">支払い回数</label>
+                    <select id="installments">
+                        <option value="3">3回払い</option>
+                        <option value="6">6回払い</option>
+                        <option value="10">10回払い</option>
+                        <option value="12" selected>12回払い</option>
+                        <option value="15">15回払い</option>
+                        <option value="18">18回払い</option>
+                        <option value="20">20回払い</option>
+                        <option value="24">24回払い</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button onclick="calculatePayment()">計算する</button>
+            
+            <div id="result"></div>
+        </main>
     </div>
+
+    <script>
+        // アドオン率の選択機能
+        document.querySelectorAll('.rate-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.rate-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                document.getElementById('addonRate').value = this.dataset.rate;
+                calculatePayment();
+            });
+        });
+
+        function calculatePayment() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const addonRate = parseFloat(document.getElementById('addonRate').value);
+            const installments = parseInt(document.getElementById('installments').value);
+            
+            if (!principal || !installments) {
+                alert('購入金額と支払い回数を入力してください。');
+                return;
+            }
+            
+            // 分割払手数料の計算
+            const splitFee = Math.floor(principal * (addonRate / 100) * installments);
+            const totalPayment = principal + splitFee;
+            
+            const baseMonthlyPayment = Math.floor(totalPayment / installments);
+            const remainder = totalPayment % installments;
+            const firstPayment = baseMonthlyPayment + remainder;
+            const remainingPayments = baseMonthlyPayment;
+            
+            displayResults({
+                principal: principal,
+                addonRate: addonRate,
+                totalPayment: totalPayment,
+                installments: installments,
+                splitFee: splitFee,
+                firstPayment: firstPayment,
+                remainingPayments: remainingPayments
+            });
+        }
+
+        function displayResults(results) {
+            const resultHTML = `
+                <div class="result-details">
+                    <h2>計算結果</h2>
+                    <div class="result-grid">
+                        <div class="result-row">
+                            <span class="label">購入金額</span>
+                            <span class="value">¥${results.principal.toLocaleString()}</span>
+                        </div>
+                        
+                        <div class="result-row">
+                            <span class="label">アドオン率</span>
+                            <span class="value">${results.addonRate.toFixed(2)}%</span>
+                        </div>
+                        
+                        <div class="result-row">
+                            <span class="label">支払い回数</span>
+                            <span class="value">${results.installments}回払い</span>
+                        </div>
+                        
+                        <div class="result-row">
+                            <span class="label">分割払手数料</span>
+                            <span class="value">¥${results.splitFee.toLocaleString()}</span>
+                        </div>
+                        
+                        <div class="result-row">
+                            <span class="label">支払総額</span>
+                            <span class="value">¥${results.totalPayment.toLocaleString()}</span>
+                        </div>
+                        
+                        <div class="result-row">
+                            <span class="label">1回目のお支払い</span>
+                            <span class="value">¥${results.firstPayment.toLocaleString()}</span>
+                        </div>
+                        
+                        <div class="result-row">
+                            <span class="label">2回目以降のお支払い</span>
+                            <span class="value">¥${results.remainingPayments.toLocaleString()}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-container">
+                        ${generateSchedule(results)}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('result').innerHTML = resultHTML;
+        }
+
+        function generateSchedule(results) {
+            let schedule = '<h3 style="padding: 1rem;">お支払いスケジュール</h3>';
+            const today = new Date('2025-08-22');
+            
+            for (let i = 0; i < results.installments; i++) {
+                const paymentDate = new Date(today);
+                paymentDate.setMonth(paymentDate.getMonth() + i + 1);
+                
+                const payment = i === 0 ? results.firstPayment : results.remainingPayments;
+                
+                schedule += `
+                    <div class="schedule-row">
+                        <span class="payment-date">${paymentDate.getFullYear()}年${paymentDate.getMonth() + 1}月</span>
+                        <span class="payment-amount">¥${payment.toLocaleString()}</span>
+                    </div>
+                `;
+            }
+            
+            return schedule;
+        }
+
+        // ページ読み込み時に計算を実行
+        document.addEventListener('DOMContentLoaded', calculatePayment);
+    </script>
 </body>
 </html>
